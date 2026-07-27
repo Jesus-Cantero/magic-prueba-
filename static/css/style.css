@@ -1,0 +1,361 @@
+/* =====================================================
+   MAGIC BY SUSO — DEMONIC CONSULTATION
+   Identidad: grimorio arcano. Tinta, oro viejo y carmesi
+   sobre un fondo casi negro. Cada carta lleva al borde
+   izquierdo el color de su identidad de mana, como un
+   lomo de libro ordenado por escuela de magia.
+   ===================================================== */
+
+@import url('https://fonts.googleapis.com/css2?family=Cinzel:wght@500;600;700&family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=JetBrains+Mono:wght@400;600&display=swap');
+
+:root {
+    --void: #0b0a12;
+    --panel: #15121f;
+    --panel-2: #1c1830;
+    --line: #33294f;
+    --gold: #c6a15b;
+    --gold-bright: #e8c878;
+    --crimson: #7a2233;
+    --parchment: #e9e2d3;
+    --muted: #948da8;
+
+    --w: #f2e2ac;
+    --u: #3f7fc1;
+    --b: #a68fd6;
+    --r: #c0483a;
+    --g: #3f8a5c;
+    --c: #8a93a3;
+}
+
+* { box-sizing: border-box; }
+
+body {
+    font-family: 'EB Garamond', Georgia, serif;
+    font-size: 18px;
+    background: radial-gradient(ellipse at top, #1a1530 0%, var(--void) 60%);
+    color: var(--parchment);
+    margin: 0;
+    min-height: 100vh;
+}
+
+h1, h2, h3 {
+    font-family: 'Cinzel', serif;
+    font-weight: 600;
+    letter-spacing: 0.02em;
+    color: var(--gold-bright);
+    margin-top: 0;
+}
+
+a { color: var(--gold-bright); }
+
+/* ---------- Navbar ---------- */
+
+.navbar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.1rem 2.5rem;
+    background: linear-gradient(180deg, var(--panel-2), var(--panel));
+    border-bottom: 1px solid var(--line);
+    box-shadow: 0 2px 24px rgba(0,0,0,0.5);
+}
+
+.navbar .logo {
+    font-family: 'Cinzel', serif;
+    font-size: 1.15rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    background: linear-gradient(120deg, var(--gold) 0%, var(--gold-bright) 50%, var(--gold) 100%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+    display: inline-block;
+}
+
+.navbar .logo .sub {
+    display: block;
+    font-family: 'EB Garamond', serif;
+    font-style: italic;
+    font-size: 0.65rem;
+    letter-spacing: 0.12em;
+    color: var(--crimson);
+    -webkit-text-fill-color: var(--crimson);
+    text-transform: none;
+    margin-top: 0.15rem;
+}
+
+.nav-links a {
+    color: var(--muted);
+    text-decoration: none;
+    margin-left: 2rem;
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    padding-bottom: 4px;
+    border-bottom: 1px solid transparent;
+    transition: color 0.2s, border-color 0.2s;
+}
+
+.nav-links a:hover {
+    color: var(--gold-bright);
+    border-bottom-color: var(--gold);
+}
+
+/* ---------- Layout ---------- */
+
+.contenedor {
+    max-width: 1140px;
+    margin: 0 auto;
+    padding: 2.5rem 1.5rem 4rem;
+}
+
+.divisor {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin: 0.5rem 0 2rem;
+    color: var(--gold);
+}
+.divisor::before, .divisor::after {
+    content: "";
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+.divisor span { font-size: 0.9rem; }
+
+.eyebrow {
+    font-family: 'Cinzel', serif;
+    font-size: 0.75rem;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--crimson);
+    margin-bottom: 0.5rem;
+    display: block;
+}
+
+.flash {
+    background: var(--panel-2);
+    border-left: 3px solid var(--crimson);
+    padding: 0.9rem 1.2rem;
+    margin-bottom: 1.5rem;
+    border-radius: 2px;
+    font-style: italic;
+    color: var(--parchment);
+}
+
+/* ---------- Formularios ---------- */
+
+.form-busqueda, .form-nuevo-mazo {
+    display: flex;
+    gap: 0.7rem;
+    flex-wrap: wrap;
+    margin-bottom: 1.2rem;
+    padding: 1.2rem;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 4px;
+}
+
+input, select {
+    padding: 0.6rem 0.8rem;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    background: var(--void);
+    color: var(--parchment);
+    font-family: 'EB Garamond', serif;
+    font-size: 1rem;
+}
+
+input:focus, select:focus {
+    outline: none;
+    border-color: var(--gold);
+    box-shadow: 0 0 0 2px rgba(198, 161, 91, 0.25);
+}
+
+button, .btn {
+    padding: 0.6rem 1.3rem;
+    border-radius: 3px;
+    border: 1px solid var(--gold);
+    background: transparent;
+    color: var(--gold-bright);
+    font-family: 'Cinzel', serif;
+    font-size: 0.78rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    cursor: pointer;
+    transition: background 0.2s, color 0.2s;
+}
+
+button:hover, .btn:hover {
+    background: var(--gold);
+    color: var(--void);
+}
+
+.btn-eliminar {
+    border-color: var(--crimson);
+    color: #e08a97;
+}
+.btn-eliminar:hover {
+    background: var(--crimson);
+    color: var(--parchment);
+}
+
+.resultados-info {
+    color: var(--muted);
+    font-style: italic;
+    margin-bottom: 1.2rem;
+}
+
+/* ---------- Rejilla de cartas ---------- */
+
+.grid-cartas, .grid-mazo {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(170px, 1fr));
+    gap: 1.1rem;
+}
+
+.tarjeta-carta, .tarjeta-carta-mazo {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 4px solid var(--c);
+    border-radius: 3px;
+    padding: 0.7rem;
+    text-align: center;
+    text-decoration: none;
+    color: var(--parchment);
+    transition: transform 0.15s, border-color 0.15s, box-shadow 0.15s;
+}
+
+.tarjeta-carta:hover {
+    transform: translateY(-3px);
+    border-color: var(--gold);
+    box-shadow: 0 8px 20px rgba(0,0,0,0.45);
+}
+
+.tarjeta-carta.color-W { border-left-color: var(--w); }
+.tarjeta-carta.color-U { border-left-color: var(--u); }
+.tarjeta-carta.color-B { border-left-color: var(--b); }
+.tarjeta-carta.color-R { border-left-color: var(--r); }
+.tarjeta-carta.color-G { border-left-color: var(--g); }
+.tarjeta-carta.color-M { border-left-color: var(--gold); }
+
+.tarjeta-carta img, .tarjeta-carta-mazo img {
+    width: 100%;
+    border-radius: 4px;
+    margin-bottom: 0.5rem;
+}
+
+.tarjeta-carta p, .tarjeta-carta-mazo p {
+    font-family: 'Cinzel', serif;
+    font-size: 0.82rem;
+    letter-spacing: 0.01em;
+    margin: 0.3rem 0;
+}
+
+.sin-imagen {
+    height: 220px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: var(--panel-2);
+    border-radius: 4px;
+    color: var(--muted);
+    font-style: italic;
+}
+
+.paginacion {
+    margin-top: 2rem;
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.paginacion a {
+    color: var(--muted);
+    text-decoration: none;
+    padding: 0.35rem 0.75rem;
+    border-radius: 3px;
+    border: 1px solid var(--line);
+    font-family: 'JetBrains Mono', monospace;
+    font-size: 0.85rem;
+}
+
+.paginacion a.activa {
+    background: var(--gold);
+    color: var(--void);
+    border-color: var(--gold);
+    font-weight: 600;
+}
+
+/* ---------- Ficha de carta ---------- */
+
+.ficha-carta {
+    display: flex;
+    gap: 2.5rem;
+    flex-wrap: wrap;
+    margin-top: 1.5rem;
+}
+
+.ficha-imagen img {
+    width: 300px;
+    border-radius: 10px;
+    box-shadow: 0 12px 32px rgba(0,0,0,0.55);
+}
+
+.ficha-info { flex: 1; min-width: 300px; }
+
+.ficha-info p {
+    margin: 0.4rem 0;
+}
+
+.ficha-info strong {
+    color: var(--gold);
+    font-family: 'Cinzel', serif;
+    font-size: 0.8rem;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    margin-right: 0.3rem;
+}
+
+.texto-carta {
+    white-space: pre-line;
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-left: 3px solid var(--gold);
+    padding: 1.1rem 1.3rem;
+    border-radius: 3px;
+    margin: 1.2rem 0;
+    font-style: italic;
+    line-height: 1.5;
+}
+
+/* ---------- Mazos ---------- */
+
+.lista-mazos {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+    gap: 1.1rem;
+}
+
+.tarjeta-mazo {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    padding: 1.2rem;
+    border-radius: 4px;
+    transition: border-color 0.15s;
+}
+.tarjeta-mazo:hover { border-color: var(--gold); }
+
+.tarjeta-mazo a { color: var(--parchment); text-decoration: none; }
+.tarjeta-mazo h3 { margin-bottom: 0.2rem; font-size: 1.05rem; }
+.tarjeta-mazo p { color: var(--muted); font-style: italic; margin: 0; }
+
+.cantidad {
+    color: var(--gold);
+    font-family: 'JetBrains Mono', monospace;
+    font-weight: 600;
+}

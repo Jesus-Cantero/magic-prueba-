@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}{{ carta['nombre'] }} - Suso Demonic Consultation{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('index') }}">&larr; Volver al grimorio</a>
+<span class="eyebrow">Ficha de la carta</span>
+
+<div class="ficha-carta">
+    <div class="ficha-imagen">
+        {% if carta['imagen_url'] %}
+            <img src="{{ carta['imagen_url'] }}" alt="{{ carta['nombre'] }}">
+        {% endif %}
+    </div>
+    <div class="ficha-info">
+        <h1>{{ carta['nombre'] }}</h1>
+        <p><strong>Coste de maná:</strong> {{ carta['coste_mana'] or '—' }}</p>
+        <p><strong>Tipo:</strong> {{ carta['tipo'] }}</p>
+        {% if carta['poder'] %}
+            <p><strong>Poder/Resistencia:</strong> {{ carta['poder'] }}/{{ carta['resistencia'] }}</p>
+        {% endif %}
+        <p><strong>Rareza:</strong> {{ carta['rareza'] }}</p>
+        <p><strong>Edición:</strong> {{ carta['set_nombre'] }}</p>
+        <p class="texto-carta">{{ carta['texto'] }}</p>
+
+        <h3>Añadir a un mazo</h3>
+        {% if mazos %}
+        <form action="" onsubmit="return false;">
+            <select id="select-mazo">
+                {% for m in mazos %}
+                    <option value="{{ m['id'] }}">{{ m['nombre'] }}</option>
+                {% endfor %}
+            </select>
+            <button type="button" onclick="anadirAMazo('{{ carta['id'] }}')">Añadir</button>
+        </form>
+        <p id="mensaje-anadir"></p>
+        {% else %}
+            <p>Todavía no tienes mazos. <a href="{{ url_for('listar_mazos') }}">Crea uno aquí</a>.</p>
+        {% endif %}
+    </div>
+</div>
+
+<script>
+async function anadirAMazo(cartaId) {
+    const mazoId = document.getElementById('select-mazo').value;
+    const resp = await fetch(`/api/mazos/${mazoId}/anadir`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({carta_id: cartaId, cantidad: 1})
+    });
+    const data = await resp.json();
+    document.getElementById('mensaje-anadir').textContent = data.ok ? 'Carta añadida ✔' : 'Error al añadir';
+}
+</script>
+{% endblock %}

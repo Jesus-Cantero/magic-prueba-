@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}{{ mazo['nombre'] }} - Suso Demonic Consultation{% endblock %}
+
+{% block content %}
+<a href="{{ url_for('listar_mazos') }}">&larr; Volver a mis mazos</a>
+<span class="eyebrow">Constructor de mazo</span>
+<h1>{{ mazo['nombre'] }}</h1>
+<p>{{ mazo['formato'] or 'Formato no especificado' }} — {{ total_cartas }} carta(s) en total</p>
+
+<p><a href="{{ url_for('index') }}">Buscar más cartas para añadir</a></p>
+
+<div class="grid-mazo" id="grid-mazo">
+    {% for carta in cartas %}
+    <div class="tarjeta-carta-mazo" data-carta-id="{{ carta['id'] }}">
+        {% if carta['imagen_url'] %}
+            <img src="{{ carta['imagen_url'] }}" alt="{{ carta['nombre'] }}">
+        {% endif %}
+        <p>{{ carta['nombre'] }}</p>
+        <p class="cantidad">x{{ carta['cantidad'] }}</p>
+        <button onclick="quitarDelMazo('{{ carta['id'] }}', this)">Quitar</button>
+    </div>
+    {% else %}
+        <p>Este mazo todavía no tiene cartas. Búscalas y añádelas desde su ficha.</p>
+    {% endfor %}
+</div>
+
+<script>
+async function quitarDelMazo(cartaId, boton) {
+    const resp = await fetch(`/api/mazos/{{ mazo['id'] }}/quitar`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({carta_id: cartaId})
+    });
+    const data = await resp.json();
+    if (data.ok) {
+        boton.closest('.tarjeta-carta-mazo').remove();
+    }
+}
+</script>
+{% endblock %}

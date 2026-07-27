@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Suso Demonic Consultation - Wiki de Magic the Gathering & Creador de Mazos</title>
+
+    <!-- Meta tags de SEO -->
+    <meta name="description" content="Grimorio arcano de Magic the Gathering: busca cartas, explora ediciones y crea tus mazos personalizados para GitHub Pages.">
+    <meta name="keywords" content="Magic the Gathering, MTG, Wiki, Grimorio, Deck Builder, Scryfall, Demonic Consultation">
+    <meta name="author" content="Suso">
+
+    <!-- Estilos CSS -->
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Navegación Superior -->
+    <nav class="navbar" id="main-navbar">
+        <div class="logo" id="logo-btn" onclick="navegarA('grimorio')">
+            Suso
+            <span class="sub">Demonic Consultation</span>
+        </div>
+        <div class="nav-links">
+            <button class="nav-btn active" id="nav-btn-grimorio" onclick="navegarA('grimorio')">
+                <span>✦ Grimorio</span>
+            </button>
+            <button class="nav-btn" id="nav-btn-mazos" onclick="navegarA('mazos')">
+                <span>⚔ Mis Mazos</span>
+                <span class="nav-badge" id="badge-total-mazos">0</span>
+            </button>
+        </div>
+    </nav>
+
+    <!-- Contenido Principal -->
+    <main class="contenedor">
+
+        <!-- ================= SECCIÓN 1: GRIMORIO (BUSCADOR DE CARTAS) ================= -->
+        <section id="seccion-grimorio" class="seccion">
+            <span class="eyebrow">El compendio</span>
+            <h1>Consulta el grimorio completo</h1>
+            <div class="divisor"><span>✦</span></div>
+
+            <!-- Formulario de búsqueda -->
+            <form id="form-busqueda" class="form-busqueda" onsubmit="event.preventDefault(); ejecutarBusqueda(1);">
+                <input type="text" id="input-q" placeholder="Nombre o texto de la carta (ej. Lotus, Counterspell)..." aria-label="Texto de búsqueda">
+
+                <select id="select-color" aria-label="Seleccionar color">
+                    <option value="">Cualquier color</option>
+                    <option value="W">Blanco (W)</option>
+                    <option value="U">Azul (U)</option>
+                    <option value="B">Negro (B)</option>
+                    <option value="R">Rojo (R)</option>
+                    <option value="G">Verde (G)</option>
+                    <option value="C">Incoloro (C)</option>
+                </select>
+
+                <input type="text" id="input-tipo" placeholder="Tipo (Criatura, Instantáneo...)" aria-label="Tipo de carta">
+
+                <button type="submit" id="btn-buscar">
+                    <span>🔍 Buscar</span>
+                </button>
+                <button type="button" class="btn-secundario" onclick="limpiarFiltros()">
+                    <span>Reset</span>
+                </button>
+            </form>
+
+            <div class="resultados-info">
+                <span id="txt-resultados-count">Cargando cartas...</span>
+                <span id="txt-pagina-info" style="font-size: 0.85rem; color: var(--gold);"></span>
+            </div>
+
+            <!-- Contenedor del spinner -->
+            <div id="loading-spinner" class="spinner-container hidden">
+                <div class="spinner"></div>
+                <p>Consultando los pergaminos de Scryfall...</p>
+            </div>
+
+            <!-- Rejilla de cartas -->
+            <div class="grid-cartas" id="grid-cartas">
+                <!-- Se poblará dinámicamente con JS -->
+            </div>
+
+            <!-- Paginación -->
+            <div class="paginacion" id="paginacion">
+                <!-- Botones de páginas -->
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN 2: MIS MAZOS ================= -->
+        <section id="seccion-mazos" class="seccion hidden">
+            <span class="eyebrow">Tu colección</span>
+            <h1>Mis mazos arcanos</h1>
+            <div class="divisor"><span>✦</span></div>
+
+            <!-- Formulario para crear mazo -->
+            <form id="form-nuevo-mazo" class="form-nuevo-mazo" onsubmit="event.preventDefault(); crearNuevoMazo();">
+                <input type="text" id="nuevo-mazo-nombre" placeholder="Nombre del mazo (ej. Demonic Reanimator)" required aria-label="Nombre del mazo">
+                <input type="text" id="nuevo-mazo-formato" placeholder="Formato (Commander, Standard, Modern...)" aria-label="Formato">
+                <button type="submit">✦ Crear mazo</button>
+            </form>
+
+            <div class="lista-mazos" id="lista-mazos">
+                <!-- Se poblará dinámicamente -->
+            </div>
+        </section>
+
+        <!-- ================= SECCIÓN 3: CONSTRUCTOR / DETALLE DE MAZO ================= -->
+        <section id="seccion-detalle-mazo" class="seccion hidden">
+            <button type="button" class="btn-secundario" onclick="navegarA('mazos')" style="margin-bottom: 1rem;">
+                &larr; Volver a mis mazos
+            </button>
+            <span class="eyebrow">Constructor de mazo</span>
+            <h1 id="mazo-titulo-detalle">Mazo</h1>
+            <p id="mazo-subtitulo-detalle" style="color: var(--muted); font-style: italic; margin-bottom: 1.5rem;"></p>
+
+            <div style="margin-bottom: 1.5rem; display: flex; gap: 1rem; flex-wrap: wrap;">
+                <button type="button" onclick="navegarA('grimorio')">
+                    🔍 Buscar cartas para añadir
+                </button>
+            </div>
+
+            <div class="grid-mazo" id="grid-cartas-mazo">
+                <!-- Cartas del mazo -->
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal de Detalle de Carta -->
+    <div id="modal-carta" class="modal-overlay hidden" onclick="cerrarModalAfuera(event)">
+        <div class="modal-contenido">
+            <button type="button" class="btn-cerrar-modal" onclick="cerrarModal()" aria-label="Cerrar modal">&times;</button>
+            
+            <div class="ficha-carta">
+                <div class="ficha-imagen">
+                    <img id="modal-img" src="" alt="Carta">
+                </div>
+                <div class="ficha-info">
+                    <h1 id="modal-nombre">Nombre de Carta</h1>
+                    <p><strong>Coste de maná:</strong> <span id="modal-coste">—</span></p>
+                    <p><strong>Tipo:</strong> <span id="modal-tipo">—</span></p>
+                    <p id="modal-pt-container" class="hidden"><strong>Poder/Resistencia:</strong> <span id="modal-pt">—</span></p>
+                    <p><strong>Rareza:</strong> <span id="modal-rareza">—</span></p>
+                    <p><strong>Edición:</strong> <span id="modal-set">—</span></p>
+                    
+                    <div class="texto-carta" id="modal-texto">Sin texto.</div>
+
+                    <div class="seccion-anadir-mazo">
+                        <h3>Añadir a un mazo</h3>
+                        <div id="contenedor-select-mazo">
+                            <form class="form-anadir-mazo" onsubmit="event.preventDefault(); anadirCartaAMazoActual();">
+                                <select id="modal-select-mazo" aria-label="Seleccionar mazo">
+                                    <!-- Opciones de mazos -->
+                                </select>
+                                <button type="submit">Añadir</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast de Notificaciones -->
+    <div id="toast-notif" class="toast hidden"></div>
+
+    <!-- Footer -->
+    <footer>
+        <p>Suso Demonic Consultation &copy; 2026. Basado en Scryfall API. Magic: The Gathering es propiedad de Wizards of the Coast.</p>
+    </footer>
+
+    <!-- Lógica JavaScript de la Aplicación -->
+    <script>
+        // ================= ESTADO Y ALMACENAMIENTO LOCAL =================
+        const DECK_STORAGE_KEY = 'suso_mtg_mazos_v1';
+        let cartaSeleccionadaActual = null;
+        let idMazoAbiertoActual = null;
+        let paginaActual = 1;
+        let totalPaginasActual = 1;
+
+        // Datos de cartas de demostración (Fallback por si falla la API o está sin conexión)
+        const SAMPLE_CARDS = [
+            {
+                id: 'demonic-consultation',
+                name: 'Demonic Consultation',
+                mana_cost: '{B}',
+                type_line: 'Instant',
+                oracle_text: 'Choose a card name. Exile the top six cards of your library, then reveal cards from the top of your library until you reveal a card with the chosen name. Put that card into your hand and exile all other cards revealed this way.',
+                colors: ['B'],
+                rarity: 'rare',
+                set_name: 'Ice Age',
+                image_url: 'https://cards.scryfall.io/normal/front/1/d/1d779f19-3068-4976-b96b-8f93d156900b.jpg'
+            },
+            {
+                id: 'black-lotus',
+                name: 'Black Lotus',
+                mana_cost: '{0}',
+                type_line: 'Artifact',
+                oracle_text: '{T}, Sacrifice Black Lotus: Add three mana of any one color.',
+                colors: [],
+                rarity: 'rare',
+                set_name: 'Alpha',
+                image_url: 'https://cards.scryfall.io/normal/front/b/d/bd8fa327-dd41-4737-8f19-2cf5eb1f7cdd.jpg'
+            },
+            {
+                id: 'sol-ring',
+                name: 'Sol Ring',
+                mana_cost: '{1}',
+                type_line: 'Artifact',
+                oracle_text: '{T}: Add {C}{C}.',
+                colors: [],
+                rarity: 'uncommon',
+                set_name: 'Commander 2021',
+                image_url: 'https://cards.scryfall.io/normal/front/4/c/4cbc508b-66d5-40b5-9610-8260c6d70ebc.jpg'
+            },
+            {
+                id: 'counterspell',
+                name: 'Counterspell',
+                mana_cost: '{U}{U}',
+                type_line: 'Instant',
+                oracle_text: 'Counter target spell.',
+                colors: ['U'],
+                rarity: 'uncommon',
+                set_name: 'Seventh Edition',
+                image_url: 'https://cards.scryfall.io/normal/front/1/9/1920dae4-fb92-4f19-ae4b-eb3276b8edce.jpg'
+            },
+            {
+                id: 'lightning-bolt',
+                name: 'Lightning Bolt',
+                mana_cost: '{R}',
+                type_line: 'Instant',
+                oracle_text: 'Lightning Bolt deals 3 damage to any target.',
+                colors: ['R'],
+                rarity: 'common',
+                set_name: 'Magic 2011',
+                image_url: 'https://cards.scryfall.io/normal/front/f/2/f29ba16f-c8fb-42fe-aabf-87089cb214a7.jpg'
+            },
+            {
+                id: 'birds-of-paradise',
+                name: 'Birds of Paradise',
+                mana_cost: '{G}',
+                type_line: 'Creature — Bird',
+                oracle_text: 'Flying\n{T}: Add one mana of any color.',
+                power: '0',
+                toughness: '1',
+                colors: ['G'],
+                rarity: 'rare',
+                set_name: 'Ravnica: City of Guilds',
+                image_url: 'https://cards.scryfall.io/normal/front/f/e/fe469f6b-4595-4ede-b9b5-c740df4bd5d9.jpg'
+            },
+            {
+                id: 'swords-to-plowshares',
+                name: 'Swords to Plowshares',
+                mana_cost: '{W}',
+                type_line: 'Instant',
+                oracle_text: 'Exile target creature. Its controller gains life equal to its power.',
+                colors: ['W'],
+                rarity: 'uncommon',
+                set_name: 'Ice Age',
+                image_url: 'https://cards.scryfall.io/normal/front/6/d/6d9634e4-080b-4497-b352-78d123e4299b.jpg'
+            },
+            {
+                id: 'dark-ritual',
+                name: 'Dark Ritual',
+                mana_cost: '{B}',
+                type_line: 'Instant',
+                oracle_text: 'Add {B}{B}{B}.',
+                colors: ['B'],
+                rarity: 'common',
+                set_name: 'Mercadian Masques',
+                image_url: 'https://cards.scryfall.io/normal/front/9/5/95f27eeb-6f14-4db3-adb9-9be5ed76b34b.jpg'
+            }
+        ];
+
+        // Obtener mazos guardados desde LocalStorage
+        function obtenerMazosGuardados() {
+            try {
+                const raw = localStorage.getItem(DECK_STORAGE_KEY);
+                if (!raw) {
+                    // Mazo inicial por defecto si es la primera vez
+                    const mazoInicial = [{
+                        id: 1,
+                        nombre: 'Mazo de Prueba',
+                        formato: 'Commander',
+                        creado_en: new Date().toLocaleDateString(),
+                        cartas: {}
+                    }];
+                    localStorage.setItem(DECK_STORAGE_KEY, JSON.stringify(mazoInicial));
+                    return mazoInicial;
+                }
+                return JSON.parse(raw);
+            } catch (e) {
+                console.error("Error al leer mazos:", e);
+                return [];
+            }
+        }
+
+        function guardarMazos(mazos) {
+            localStorage.setItem(DECK_STORAGE_KEY, JSON.stringify(mazos));
+            actualizarBadgeMazos();
+        }
+
+        function actualizarBadgeMazos() {
+            const mazos = obtenerMazosGuardados();
+            document.getElementById('badge-total-mazos').textContent = mazos.length;
+        }
+
+        // ================= NAVEGACIÓN Y VISTAS =================
+        function navegarA(vistaId) {
+            document.querySelectorAll('.seccion').forEach(sec => sec.classList.add('hidden'));
+            document.querySelectorAll('.nav-btn').forEach(btn => btn.classList.remove('active'));
+
+            if (vistaId === 'grimorio') {
+                document.getElementById('seccion-grimorio').classList.remove('hidden');
+                document.getElementById('nav-btn-grimorio').classList.add('active');
+            } else if (vistaId === 'mazos') {
+                document.getElementById('seccion-mazos').classList.remove('hidden');
+                document.getElementById('nav-btn-mazos').classList.add('active');
+                renderizarListaMazos();
+            } else if (vistaId === 'detalle-mazo') {
+                document.getElementById('seccion-detalle-mazo').classList.remove('hidden');
+            }
+        }
+
+        // ================= BÚSQUEDA Y SCRYFALL API =================
+        async function ejecutarBusqueda(pagina = 1) {
+            paginaActual = pagina;
+            const q = document.getElementById('input-q').value.trim();
+            const color = document.getElementById('select-color').value;
+            const tipo = document.getElementById('input-tipo').value.trim();
+
+            const gridContainer = document.getElementById('grid-cartas');
+            const spinner = document.getElementById('loading-spinner');
+            const txtResults = document.getElementById('txt-resultados-count');
+            const txtPagina = document.getElementById('txt-pagina-info');
+
+            gridContainer.innerHTML = '';
+            spinner.classList.remove('hidden');
+            txtResults.textContent = 'Buscando en Scryfall...';
+            txtPagina.textContent = '';
+
+            // Construir query para Scryfall API
+            let queryParts = [];
+            if (q) queryParts.push(q);
+            if (tipo) queryParts.push(`t:${tipo}`);
+            if (color) {
+                if (color === 'C') queryParts.push('c:c');
+                else queryParts.push(`c:${color}`);
+            }
+
+            // Query por defecto si no hay nada especificado
+            let fullQuery = queryParts.join(' ');
+            if (!fullQuery) {
+                fullQuery = 'order:edhrec';
+            }
+
+            try {
+                const url = `https://api.scryfall.com/cards/search?q=${encodeURIComponent(fullQuery)}&page=${pagina}`;
+                const resp = await fetch(url);
+                
+                if (!resp.ok) {
+                    if (resp.status === 404) {
+                        mostrarCartas([]);
+                        txtResults.textContent = '0 cartas encontradas.';
+                        spinner.classList.add('hidden');
+                        renderPaginacion(0, 1);
+                        return;
+                    }
+                    throw new Error(`Error API Scryfall: ${resp.status}`);
+                }
+
+                const data = await resp.json();
+                spinner.classList.add('hidden');
+
+                const totalCartas = data.total_cards || 0;
+                totalPaginasActual = Math.ceil(totalCartas / 175); // Scryfall devuelve ~175 por página
+                if (data.has_more) {
+                    totalPaginasActual = Math.max(totalPaginasActual, pagina + 1);
+                }
+
+                txtResults.textContent = `${totalCartas} carta(s) encontrada(s)`;
+                txtPagina.textContent = `Página ${pagina} de ${totalPaginasActual}`;
+
+                const cartasFormateadas = data.data.map(transformarCartaScryfall);
+                mostrarCartas(cartasFormateadas);
+                renderPaginacion(totalPaginasActual, pagina);
+
+            } catch (err) {
+                console.warn("Fallo al conectar con Scryfall API, cargando cartas de muestra:", err);
+                spinner.classList.add('hidden');
+                
+                // Filtrar en muestra local
+                let filtradas = SAMPLE_CARDS.filter(c => {
+                    let coincide = true;
+                    if (q) coincide = coincide && (c.name.toLowerCase().includes(q.toLowerCase()) || c.oracle_text.toLowerCase().includes(q.toLowerCase()));
+                    if (tipo) coincide = coincide && c.type_line.toLowerCase().includes(tipo.toLowerCase());
+                    if (color) {
+                        if (color === 'C') coincide = coincide && c.colors.length === 0;
+                        else coincide = coincide && c.colors.includes(color);
+                    }
+                    return coincide;
+                });
+
+                txtResults.textContent = `${filtradas.length} carta(s) encontrada(s) (Modo Offline)`;
+                mostrarCartas(filtradas);
+                renderPaginacion(1, 1);
+            }
+        }
+
+        function transformarCartaScryfall(c) {
+            let img = '';
+            if (c.image_uris && c.image_uris.normal) {
+                img = c.image_uris.normal;
+            } else if (c.card_faces && c.card_faces[0] && c.card_faces[0].image_uris) {
+                img = c.card_faces[0].image_uris.normal;
+            }
+
+            return {
+                id: c.id,
+                name: c.name,
+                mana_cost: c.mana_cost || '',
+                type_line: c.type_line || '',
+                oracle_text: c.oracle_text || (c.card_faces ? c.card_faces.map(f => f.oracle_text).join('\n---\n') : ''),
+                power: c.power || '',
+                toughness: c.toughness || '',
+                colors: c.colors || c.color_identity || [],
+                rarity: c.rarity || 'common',
+                set_name: c.set_name || c.set || '',
+                image_url: img
+            };
+        }
+
+        function mostrarCartas(cartas) {
+            const container = document.getElementById('grid-cartas');
+            container.innerHTML = '';
+
+            if (cartas.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1/-1; text-align: center; color: var(--muted); font-style: italic; padding: 2rem;">No se encontraron cartas con esos filtros en el grimorio.</p>`;
+                return;
+            }
+
+            cartas.forEach(carta => {
+                const el = document.createElement('div');
+                
+                // Determinar clase de color
+                let claseColor = 'color-C';
+                if (carta.colors && carta.colors.length > 1) {
+                    claseColor = 'color-M';
+                } else if (carta.colors && carta.colors.length === 1) {
+                    claseColor = `color-${carta.colors[0]}`;
+                }
+
+                el.className = `tarjeta-carta ${claseColor}`;
+                el.onclick = () => abrirModalCarta(carta);
+
+                const imgHtml = carta.image_url 
+                    ? `<img src="${carta.image_url}" alt="${carta.name}" loading="lazy">`
+                    : `<div class="sin-imagen">Sin imagen</div>`;
+
+                el.innerHTML = `
+                    ${imgHtml}
+                    <div class="nombre-carta">${carta.name}</div>
+                    <div class="tipo-carta">${carta.type_line}</div>
+                `;
+                container.appendChild(el);
+            });
+        }
+
+        function renderPaginacion(totalPaginas, actual) {
+            const container = document.getElementById('paginacion');
+            container.innerHTML = '';
+
+            if (totalPaginas <= 1) return;
+
+            // Mostrar máximo 7 botones de páginas
+            let paginasAMostrar = [];
+            for (let i = 1; i <= Math.min(totalPaginas, 10); i++) {
+                paginasAMostrar.push(i);
+            }
+
+            paginasAMostrar.forEach(p => {
+                const btn = document.createElement('button');
+                btn.textContent = p;
+                if (p === actual) btn.className = 'activa';
+                btn.onclick = () => ejecutarBusqueda(p);
+                container.appendChild(btn);
+            });
+        }
+
+        function limpiarFiltros() {
+            document.getElementById('input-q').value = '';
+            document.getElementById('select-color').value = '';
+            document.getElementById('input-tipo').value = '';
+            ejecutarBusqueda(1);
+        }
+
+        // ================= MODAL DETALLE DE CARTA =================
+        function abrirModalCarta(carta) {
+            cartaSeleccionadaActual = carta;
+
+            document.getElementById('modal-nombre').textContent = carta.name;
+            document.getElementById('modal-coste').textContent = carta.mana_cost || '—';
+            document.getElementById('modal-tipo').textContent = carta.type_line || '—';
+            document.getElementById('modal-rareza').textContent = (carta.rarity || '').toUpperCase();
+            document.getElementById('modal-set').textContent = carta.set_name || '—';
+            document.getElementById('modal-texto').textContent = carta.oracle_text || 'Sin texto explicativo.';
+
+            if (carta.power && carta.toughness) {
+                document.getElementById('modal-pt-container').classList.remove('hidden');
+                document.getElementById('modal-pt').textContent = `${carta.power} / ${carta.toughness}`;
+            } else {
+                document.getElementById('modal-pt-container').classList.add('hidden');
+            }
+
+            const imgEl = document.getElementById('modal-img');
+            if (carta.image_url) {
+                imgEl.src = carta.image_url;
+                imgEl.classList.remove('hidden');
+            } else {
+                imgEl.classList.add('hidden');
+            }
+
+            // Cargar selector de mazos
+            const mazos = obtenerMazosGuardados();
+            const selectEl = document.getElementById('modal-select-mazo');
+            selectEl.innerHTML = '';
+
+            if (mazos.length === 0) {
+                selectEl.innerHTML = `<option value="">No tienes mazos creados</option>`;
+            } else {
+                mazos.forEach(m => {
+                    const opt = document.createElement('option');
+                    opt.value = m.id;
+                    opt.textContent = m.nombre;
+                    selectEl.appendChild(opt);
+                });
+            }
+
+            document.getElementById('modal-carta').classList.remove('hidden');
+        }
+
+        function cerrarModal() {
+            document.getElementById('modal-carta').classList.add('hidden');
+        }
+
+        function cerrarModalAfuera(e) {
+            if (e.target.id === 'modal-carta') {
+                cerrarModal();
+            }
+        }
+
+        // ================= GESTIÓN DE MAZOS (MIS MAZOS) =================
+        function crearNuevoMazo() {
+            const nombreInput = document.getElementById('nuevo-mazo-nombre');
+            const formatoInput = document.getElementById('nuevo-mazo-formato');
+
+            const nombre = nombreInput.value.trim();
+            const formato = formatoInput.value.trim() || 'Formato no especificado';
+
+            if (!nombre) return;
+
+            const mazos = obtenerMazosGuardados();
+            const nuevoMazo = {
+                id: Date.now(),
+                nombre: nombre,
+                formato: formato,
+                creado_en: new Date().toLocaleDateString(),
+                cartas: {} // { cartaId: { carta: obj, cantidad: n } }
+            };
+
+            mazos.unshift(nuevoMazo);
+            guardarMazos(mazos);
+
+            nombreInput.value = '';
+            formatoInput.value = '';
+
+            mostrarToast(`Mazo "${nombre}" creado con éxito ✔`);
+            renderizarListaMazos();
+        }
+
+        function renderizarListaMazos() {
+            const container = document.getElementById('lista-mazos');
+            const mazos = obtenerMazosGuardados();
+            container.innerHTML = '';
+
+            if (mazos.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1/-1; color: var(--muted); font-style: italic;">Todavía no has creado ningún mazo arcano. Usa el formulario superior para empezar.</p>`;
+                return;
+            }
+
+            mazos.forEach(m => {
+                const totalCartas = Object.values(m.cartas || {}).reduce((sum, item) => sum + item.cantidad, 0);
+
+                const card = document.createElement('div');
+                card.className = 'tarjeta-mazo';
+                card.innerHTML = `
+                    <div>
+                        <h3>${m.nombre}</h3>
+                        <div class="mazo-info">${m.formato} &bull; <span class="cantidad">${totalCartas} cartas</span></div>
+                    </div>
+                    <div class="mazo-acciones">
+                        <button type="button" onclick="verDetalleMazo(${m.id})">⚔ Ver Mazo</button>
+                        <button type="button" class="btn-eliminar" onclick="eliminarMazo(${m.id})">Eliminar</button>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        function eliminarMazo(mazoId) {
+            if (!confirm('¿Estás seguro de que deseas eliminar este mazo?')) return;
+
+            let mazos = obtenerMazosGuardados();
+            mazos = mazos.filter(m => m.id !== mazoId);
+            guardarMazos(mazos);
+            renderizarListaMazos();
+            mostrarToast('Mazo eliminado');
+        }
+
+        function anadirCartaAMazoActual() {
+            if (!cartaSeleccionadaActual) return;
+            const selectEl = document.getElementById('modal-select-mazo');
+            const mazoId = parseInt(selectEl.value);
+
+            if (!mazoId) {
+                mostrarToast('Crea primero un mazo en la pestaña "Mis Mazos"');
+                return;
+            }
+
+            const mazos = obtenerMazosGuardados();
+            const mazo = mazos.find(m => m.id === mazoId);
+
+            if (mazo) {
+                if (!mazo.cartas) mazo.cartas = {};
+                const cId = cartaSeleccionadaActual.id;
+
+                if (mazo.cartas[cId]) {
+                    mazo.cartas[cId].cantidad += 1;
+                } else {
+                    mazo.cartas[cId] = {
+                        carta: cartaSeleccionadaActual,
+                        cantidad: 1
+                    };
+                }
+
+                guardarMazos(mazos);
+                mostrarToast(`"${cartaSeleccionadaActual.name}" añadida a "${mazo.nombre}" ✔`);
+                cerrarModal();
+            }
+        }
+
+        // ================= VISTA CONSTRUCTOR / DETALLE DE MAZO =================
+        function verDetalleMazo(mazoId) {
+            idMazoAbiertoActual = mazoId;
+            const mazos = obtenerMazosGuardados();
+            const mazo = mazos.find(m => m.id === mazoId);
+
+            if (!mazo) return;
+
+            document.getElementById('mazo-titulo-detalle').textContent = mazo.nombre;
+            
+            const totalCartas = Object.values(mazo.cartas || {}).reduce((sum, item) => sum + item.cantidad, 0);
+            document.getElementById('mazo-subtitulo-detalle').textContent = `${mazo.formato} — ${totalCartas} carta(s) en total`;
+
+            const container = document.getElementById('grid-cartas-mazo');
+            container.innerHTML = '';
+
+            const items = Object.values(mazo.cartas || {});
+            if (items.length === 0) {
+                container.innerHTML = `<p style="grid-column: 1/-1; color: var(--muted); font-style: italic;">Este mazo todavía no tiene cartas. Búscalas en el Grimorio y añádelas.</p>`;
+            } else {
+                items.forEach(item => {
+                    const c = item.carta;
+                    const el = document.createElement('div');
+                    el.className = 'tarjeta-carta-mazo';
+
+                    const imgHtml = c.image_url 
+                        ? `<img src="${c.image_url}" alt="${c.name}">`
+                        : `<div class="sin-imagen">Sin imagen</div>`;
+
+                    el.innerHTML = `
+                        ${imgHtml}
+                        <div class="nombre-carta">${c.name}</div>
+                        <div class="cantidad">x${item.cantidad}</div>
+                        <div style="display: flex; gap: 0.3rem; margin-top: 0.5rem; justify-content: center;">
+                            <button type="button" onclick="modificarCantidadMazo('${c.id}', 1)">+</button>
+                            <button type="button" onclick="modificarCantidadMazo('${c.id}', -1)">-</button>
+                            <button type="button" class="btn-eliminar" onclick="quitarDelMazo('${c.id}')">Quitar</button>
+                        </div>
+                    `;
+                    container.appendChild(el);
+                });
+            }
+
+            navegarA('detalle-mazo');
+        }
+
+        function modificarCantidadMazo(cartaId, cambio) {
+            const mazos = obtenerMazosGuardados();
+            const mazo = mazos.find(m => m.id === idMazoAbiertoActual);
+
+            if (mazo && mazo.cartas && mazo.cartas[cartaId]) {
+                mazo.cartas[cartaId].cantidad += cambio;
+                if (mazo.cartas[cartaId].cantidad <= 0) {
+                    delete mazo.cartas[cartaId];
+                }
+                guardarMazos(mazos);
+                verDetalleMazo(idMazoAbiertoActual);
+            }
+        }
+
+        function quitarDelMazo(cartaId) {
+            const mazos = obtenerMazosGuardados();
+            const mazo = mazos.find(m => m.id === idMazoAbiertoActual);
+
+            if (mazo && mazo.cartas && mazo.cartas[cartaId]) {
+                delete mazo.cartas[cartaId];
+                guardarMazos(mazos);
+                verDetalleMazo(idMazoAbiertoActual);
+                mostrarToast('Carta quitada del mazo');
+            }
+        }
+
+        // ================= NOTIFICACIONES TOAST =================
+        function mostrarToast(msg) {
+            const toast = document.getElementById('toast-notif');
+            toast.textContent = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // ================= INICIALIZACIÓN =================
+        document.addEventListener('DOMContentLoaded', () => {
+            actualizarBadgeMazos();
+            ejecutarBusqueda(1);
+        });
+    </script>
+</body>
+</html>

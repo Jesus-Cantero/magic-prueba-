@@ -1,0 +1,54 @@
+{% extends "base.html" %}
+{% block title %}Buscar cartas - Suso Demonic Consultation{% endblock %}
+
+{% block content %}
+<span class="eyebrow">El compendio</span>
+<h1>Consulta el grimorio completo</h1>
+<div class="divisor"><span>✦</span></div>
+
+<form method="get" class="form-busqueda">
+    <input type="text" name="q" placeholder="Nombre o texto de la carta..." value="{{ texto }}">
+
+    <select name="color">
+        <option value="">Cualquier color</option>
+        <option value="W" {% if color == 'W' %}selected{% endif %}>Blanco</option>
+        <option value="U" {% if color == 'U' %}selected{% endif %}>Azul</option>
+        <option value="B" {% if color == 'B' %}selected{% endif %}>Negro</option>
+        <option value="R" {% if color == 'R' %}selected{% endif %}>Rojo</option>
+        <option value="G" {% if color == 'G' %}selected{% endif %}>Verde</option>
+        <option value="C" {% if color == 'C' %}selected{% endif %}>Incoloro</option>
+    </select>
+
+    <input type="text" name="tipo" placeholder="Tipo (Criatura, Instantáneo...)" value="{{ tipo }}">
+
+    <button type="submit">Buscar</button>
+</form>
+
+<p class="resultados-info">{{ total }} carta(s) encontrada(s)</p>
+
+<div class="grid-cartas">
+    {% for carta in cartas %}
+    {% set colores = carta['colores'].split(',') if carta['colores'] else [] %}
+    {% set clase_color = 'color-M' if colores|length > 1 else ('color-' + colores[0] if colores|length == 1 else '') %}
+    <a href="{{ url_for('carta_detalle', carta_id=carta['id']) }}" class="tarjeta-carta {{ clase_color }}">
+        {% if carta['imagen_url'] %}
+            <img src="{{ carta['imagen_url'] }}" alt="{{ carta['nombre'] }}">
+        {% else %}
+            <div class="sin-imagen">Sin imagen</div>
+        {% endif %}
+        <p>{{ carta['nombre'] }}</p>
+    </a>
+    {% else %}
+        <p>No se encontraron cartas con esos filtros.</p>
+    {% endfor %}
+</div>
+
+{% if total_paginas > 1 %}
+<div class="paginacion">
+    {% for p in range(1, total_paginas + 1) %}
+        <a href="{{ url_for('index', q=texto, tipo=tipo, color=color, pagina=p) }}"
+           class="{% if p == pagina %}activa{% endif %}">{{ p }}</a>
+    {% endfor %}
+</div>
+{% endif %}
+{% endblock %}

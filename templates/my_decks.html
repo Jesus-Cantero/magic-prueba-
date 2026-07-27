@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% block title %}Mis mazos - Suso Demonic Consultation{% endblock %}
+
+{% block content %}
+<span class="eyebrow">Tu colección</span>
+<h1>Mis mazos</h1>
+<div class="divisor"><span>✦</span></div>
+
+<form method="post" action="{{ url_for('crear_mazo') }}" class="form-nuevo-mazo">
+    <input type="text" name="nombre" placeholder="Nombre del mazo" required>
+    <input type="text" name="formato" placeholder="Formato (Standard, Commander...)">
+    <button type="submit">Crear mazo</button>
+</form>
+
+<div class="lista-mazos">
+    {% for mazo in mazos %}
+    <div class="tarjeta-mazo">
+        <a href="{{ url_for('ver_mazo', mazo_id=mazo['id']) }}">
+            <h3>{{ mazo['nombre'] }}</h3>
+            <p>{{ mazo['formato'] or 'Formato no especificado' }}</p>
+        </a>
+        <form method="post" action="{{ url_for('eliminar_mazo', mazo_id=mazo['id']) }}"
+              onsubmit="return confirm('¿Eliminar este mazo?');">
+            <button type="submit" class="btn-eliminar">Eliminar</button>
+        </form>
+    </div>
+    {% else %}
+        <p>Todavía no has creado ningún mazo.</p>
+    {% endfor %}
+</div>
+{% endblock %}
